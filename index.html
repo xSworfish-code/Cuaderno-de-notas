@@ -183,6 +183,86 @@ form.f input,form.f select{width:100%}
 .periodo .row{display:flex;gap:8px;flex-wrap:wrap}
 .login .btn{margin-top:16px}
 .setup ol{text-align:left;line-height:1.7;padding-left:20px}
+/* arreglo: nada empuja la página hacia los lados */
+main>*{min-width:0}
+nav.tabs svg{display:none}
+nav.tabs .sm,.menu-btn,.only-m{display:none}
+/* calificar por tarea (celular) */
+.tchips{display:flex;gap:8px;overflow-x:auto;padding:4px 2px 10px;margin:12px -2px 0;scroll-snap-type:x proximity}
+.tchip{flex:none;scroll-snap-align:start;text-align:left;border:1px solid var(--line);background:var(--surface);border-radius:12px;padding:8px 12px;min-width:132px;max-width:190px;cursor:pointer;display:flex;flex-direction:column;gap:2px}
+.tchip b{font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tchip small{font-size:11px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tchip .prog{height:4px;border-radius:2px;background:var(--grid);overflow:hidden;margin-top:4px}
+.tchip .prog span{display:block;height:100%;background:var(--accent)}
+.tchip.done .prog span{background:var(--ok)}
+.tchip[aria-pressed=true]{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent) inset;background:var(--accent-soft)}
+.mhead{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px;padding:12px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.mhead .t{font-family:var(--f-display);font-weight:600;font-size:17px}
+.mhead .m{color:var(--muted);font-size:13px}
+.mhead .btn.mini{min-height:38px;padding:6px 12px}
+.mhead .allf .allv{width:64px;min-height:38px;font-size:16px}
+.mlist{list-style:none;margin:0;padding:0}
+.mlist li{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:4px 12px;padding:10px 0;border-bottom:1px solid var(--grid)}
+.mlist li:last-child{border-bottom:0}
+.mlist .nm{font-weight:700;font-size:14px;line-height:1.25}
+.mlist .mtot{grid-column:1;font-size:12px;color:var(--muted)}
+.mlist input.g{grid-column:2;grid-row:1/span 2;width:76px;min-height:48px;font-size:20px;border-radius:10px}
+.mavg{margin-top:10px;font-size:13px;color:var(--muted)}
+/* rendimiento en tarjetas (celular) */
+.mrows{display:grid;gap:10px;margin-top:12px}
+.mrow{border:1px solid var(--line);border-radius:10px;padding:10px 12px;display:grid;gap:8px}
+.mrow-h{display:flex;align-items:flex-start;gap:8px}
+.mrow-h b{flex:1;min-width:0;font-size:14px;line-height:1.25}
+.mrow-p{display:grid;grid-template-columns:repeat(5,1fr);gap:4px;text-align:center}
+.mrow-p span{display:flex;flex-direction:column;background:var(--grid);border-radius:6px;padding:4px 2px}
+.mrow-p small{font-size:10px;color:var(--muted);letter-spacing:.04em}
+.mrow-p b{font-family:var(--f-num);font-size:15px}
+.mrow-p span.cur{outline:2px solid var(--accent);outline-offset:-2px}
+
+@media (max-width:640px){
+  .only-d{display:none!important} .only-m{display:block}
+  body{font-size:15px;padding-bottom:calc(72px + env(safe-area-inset-bottom, 0px))}
+  .wrap{padding-block:12px 24px}
+  .top{padding-left:12px;gap:6px}
+  .brand h1{font-size:24px}
+  #subtitle{font-size:13px}
+  .save{font-size:11px}
+  /* cuenta en un menú */
+  .acct{margin-top:8px}
+  .menu-btn{display:inline-block}
+  .acct #btnExport,.acct #btnImport,.acct #btnSalir{display:none}
+  .acct.open #btnExport,.acct.open #btnImport,.acct.open #btnSalir{display:inline-block;flex:1 1 30%}
+  .acct.open .who{flex-basis:100%}
+  /* grados más compactos */
+  #gradosLbl{margin-top:12px!important}
+  .tile{min-width:150px;padding:8px 12px 8px 8px;gap:8px}
+  .tile .ico{width:40px;height:40px;padding-top:5px}
+  .tile .ico b{font-size:22px}
+  /* período y parcial en una fila */
+  .controls{flex-wrap:nowrap;gap:10px;align-items:flex-end}
+  #perBox{flex:1;min-width:0}
+  #perBox select{width:100%}
+  .seg button{padding:8px 11px;min-height:40px}
+  /* 16px evita que el teléfono haga zoom al escribir */
+  select,input[type=text],input[type=number],input[type=date],textarea,input.g{font-size:16px}
+  /* pestañas abajo, al alcance del pulgar */
+  nav.tabs{position:fixed;left:0;right:0;bottom:0;z-index:20;margin:0;border:0;border-top:1px solid var(--line);background:var(--surface);display:grid;grid-template-columns:repeat(4,1fr);gap:0;overflow:visible;padding-bottom:env(safe-area-inset-bottom, 0px);padding-left:env(safe-area-inset-left, 0px);padding-right:env(safe-area-inset-right, 0px)}
+  nav.tabs a{display:flex;flex-direction:column;align-items:center;gap:3px;padding:9px 4px 8px;border:0;border-top:3px solid transparent;margin:0;font-size:11px}
+  nav.tabs a[aria-current=page]{border-top-color:var(--accent);color:var(--accent)}
+  nav.tabs svg{display:block;width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+  nav.tabs .lg{display:none} nav.tabs .sm{display:inline}
+  main{margin-top:14px;gap:14px}
+  .card{padding:14px}
+  .stats{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+  .stat{padding:10px 12px} .stat .v{font-size:22px}
+  .stats .stat:last-child:nth-child(odd){grid-column:1/-1}
+  .two{gap:14px}
+  .aviso summary{padding:10px 12px;font-size:14px}
+  .aviso .more{flex-basis:100%;padding-left:28px}
+  .item{gap:8px}
+  .btn{min-height:44px}
+  .btn.danger{min-height:38px}
+}
 .setup code{font-family:var(--f-num);background:var(--grid);padding:1px 5px;border-radius:4px}
 </style>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
@@ -201,6 +281,7 @@ form.f input,form.f select{width:100%}
   </header>
   <div class="acct" id="acct" hidden>
     <span class="who" id="who"></span>
+    <button class="btn mini ghost menu-btn" type="button" id="btnMenu" aria-expanded="false" aria-controls="acct">Cuenta ▾</button>
     <button class="btn mini ghost" type="button" id="btnExport">Descargar respaldo</button>
     <button class="btn mini ghost" type="button" id="btnImport">Importar respaldo</button>
     <input type="file" id="fileImport" accept="application/json,.json" hidden>
@@ -217,10 +298,10 @@ form.f input,form.f select{width:100%}
   </div>
 
   <nav class="tabs" aria-label="Vistas">
-    <a href="#resumen" data-view="resumen">Resumen</a>
-    <a href="#notas" data-view="notas">Notas</a>
-    <a href="#tareas" data-view="tareas">Tareas</a>
-    <a href="#alumnos" data-view="alumnos">Alumnos y secciones</a>
+    <a href="#resumen" data-view="resumen"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg><span>Resumen</span></a>
+    <a href="#notas" data-view="notas"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg><span>Notas</span></a>
+    <a href="#tareas" data-view="tareas"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6h11M9 12h11M9 18h11M4 6l1 1 2-2M4 12l1 1 2-2M4 18l1 1 2-2"/></svg><span>Tareas</span></a>
+    <a href="#alumnos" data-view="alumnos"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8M22 21v-2a4 4 0 0 0-3-3.9M16 3.1a4 4 0 0 1 0 7.8"/></svg><span class="lg">Alumnos y secciones</span><span class="sm">Alumnos</span></a>
   </nav>
 
   <main id="view">
@@ -239,12 +320,12 @@ form.f input,form.f select{width:100%}
    en este archivo.
    ============================================================ */
 const FIREBASE_CONFIG = {
-       apiKey: "AIzaSyArpx7yccTN0rG95QYXLzVs6kK8BmGz_yY",
-     authDomain: "cuaderno-de-notas-d1125.firebaseapp.com",
-     projectId: "cuaderno-de-notas-d1125",
-     storageBucket: "cuaderno-de-notas-d1125.firebasestorage.app",
-     messagingSenderId: "357923946632",
-     appId: "1:357923946632:web:47fa797f848424ae761f3d"
+  apiKey: "AIzaSyArpx7yccTN0rG95QYXLzVs6kK8BmGz_yY",
+  authDomain: "cuaderno-de-notas-d1125.firebaseapp.com",
+  projectId: "cuaderno-de-notas-d1125",
+  storageBucket: "cuaderno-de-notas-d1125.firebasestorage.app",
+  messagingSenderId: "357923946632",
+  appId: "1:357923946632:web:47fa797f848424ae761f3d"
 };
 
 const MIN = 70;               // nota mínima para aprobar (sobre 100)
@@ -278,6 +359,8 @@ const local = {};      // cambios aún sin confirmar: tareaId -> {alumnoId: valo
 const existsDoc = {};  // notas/<tareaId> creado en esta sesión
 
 const $ = s => document.querySelector(s);
+const MQ = window.matchMedia("(max-width: 640px)");
+const isM = () => MQ.matches;
 const view = $("#view");
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const fmt = n => n == null ? "—" : (Math.round(n*10)/10).toLocaleString("es-HN");
@@ -421,14 +504,17 @@ function vResumen(){
     <section class="card">
       <h2>Rendimiento por alumno</h2>
       <p class="sub">Nota de cada parcial sobre 100. El promedio del año se va sumando: cada parcial suma su nota entre 4. El estado final aparece cuando los 4 están completos.</p>
-      <div class="scroll"><table>
+      ${isM() ? `<div class="mrows">${rows.map((r,i)=>{ const e = r.faltan ? {k:"none",t:"Sin aprobar",d:`Faltan ${r.faltan} ${r.faltan===1?"parcial":"parciales"}`} : (r.prom>=MIN ? {k:"ok",t:"Aprobado"} : {k:"bad",t:"Reprobado"}); return `<div class="mrow">
+          <div class="mrow-h"><span class="idx">${i+1}</span><b>${esc(r.a.nombre)}</b><span class="pill ${e.k}">${e.t}</span></div>
+          <div class="mrow-p">${r.per.map((x,pi)=>`<span${pi+1===S.parcial?' class="cur"':""}><small>P${["I","II","III","IV"][pi]}</small><b class="${x&&x.complete?tone(x.pct):""}">${x && x.asig ? fmt(x.obt) : "—"}</b></span>`).join("")}<span><small>AÑO</small><b class="${r.faltan?"":tone(r.prom)}">${r.prom==null?"—":fmt(r.prom)}</b></span></div>
+          ${e.d?`<small class="miss" style="max-width:none">${esc(e.d)}</small>`:""}</div>`;}).join("")}</div>` : `<div class="scroll"><table>
         <thead><tr><th class="sticky">Alumno</th>${PARCIALES.map(p=>`<th class="r">P${["I","II","III","IV"][p-1]}</th>`).join("")}<th class="r">Prom. año</th><th>Estado</th></tr></thead>
         <tbody>${rows.map((r,i)=>{ const e = r.faltan ? {k:"none",t:"Sin aprobar",d:`Faltan ${r.faltan} ${r.faltan===1?"parcial":"parciales"}`} : (r.prom>=MIN ? {k:"ok",t:"Aprobado"} : {k:"bad",t:"Reprobado"}); return `<tr>
           <td class="sticky"><span class="idx">${i+1}</span>${esc(r.a.nombre)}</td>
           ${r.per.map((x,pi)=>`<td class="r num ${x&&x.complete?tone(x.pct):""}"${x&&x.asig&&!x.complete?` title="Falta: ${esc(x.missing.join(", "))}"`:""}${pi+1===S.parcial?' style="font-weight:700"':""}>${x && x.asig ? fmt(x.obt) : "—"}</td>`).join("")}
           <td class="r num ${r.faltan?"":tone(r.prom)}">${r.prom==null?"—":fmt(r.prom)}</td>
           <td><span class="pill ${e.k}"${e.d?` title="${esc(e.d)}"`:""}>${e.t}</span>${e.d?`<small class="miss">${esc(e.d)}</small>`:""}</td></tr>`;}).join("")}</tbody>
-      </table></div>
+      </table></div>`}
     </section>
     <div style="display:grid;gap:22px;align-content:start">
       <section class="card">
@@ -460,6 +546,7 @@ function vNotas(){
   if(!al.length) return `<div class="card empty"><h3>Agrega alumnos primero</h3><p>La libreta muestra una fila por alumno.</p><button class="btn" data-go="alumnos">Agregar alumnos</button></div>`;
   if(!tp.length) return `<div class="card empty"><h3>No hay tareas en el Parcial ${["I","II","III","IV"][S.parcial-1]}</h3><p>Crea una tarea y aparecerá aquí como una columna para calificar.</p><button class="btn" data-go="tareas">Crear tarea</button></div>`;
   const ro = S.canWrite ? "" : " readonly";
+  if(isM()) return vNotasM(al, tp, ro);
   const groups = [];
   for(const t of tp){ const c = catOf(t.tipo,S.sec); const g = groups[groups.length-1]; if(g && g.c===c) g.n++; else groups.push({c, n:1, w:(catsDe(S.sec).find(x=>x[0]===c)||[])[1]}); }
   return `${nivelDe(S.sec)?"":nivelNote()}<section class="card">
@@ -473,6 +560,24 @@ function vNotas(){
         <td class="r num tot" data-a="${esc(a.id)}"></td></tr>`).join("")}</tbody>
       <tfoot><tr><td class="sticky">Promedio</td>${tp.map(t=>`<td class="avg" data-t="${esc(t.id)}"></td>`).join("")}<td class="r avgtot"></td></tr></tfoot>
     </table></div>
+  </section>`;
+}
+// Celular: se califica una tarea a la vez, con la lista de alumnos hacia abajo
+function vNotasM(al, tp, ro){
+  if(!tp.some(t=>t.id===S.mTask)){ const p = tp.find(t=>al.some(a=>nota(t.id,a.id)==null)); S.mTask = (p||tp[0]).id; }
+  const t = tp.find(x=>x.id===S.mTask); const c = catOf(t.tipo,S.sec);
+  const corto = {"Tarea en clase":"En clase","Tarea extra clase":"Extra clase","Expresiones artísticas":"Expresiones"};
+  return `${nivelDe(S.sec)?"":nivelNote()}<section class="card">
+    <h2>Calificar · Parcial ${["I","II","III","IV"][S.parcial-1]}</h2>
+    <p class="sub">Elige la tarea y escribe la nota de cada alumno. Se guarda sola.</p>
+    <div class="tchips" role="tablist" aria-label="Tareas del parcial">${tp.map(x=>{ const done=al.filter(a=>nota(x.id,a.id)!=null).length; const cx=catOf(x.tipo,S.sec);
+      return `<button type="button" class="tchip${done===al.length?" done":""}" data-mtask="${esc(x.id)}" aria-pressed="${x.id===S.mTask}"><small>${esc(corto[cx]||cx||"Sin categoría")}</small><b>${esc(x.titulo)}</b><small>sobre ${fmt(+x.valor)} · ${done}/${al.length}</small><span class="prog"><span style="width:${al.length?done/al.length*100:0}%"></span></span></button>`; }).join("")}</div>
+    <div class="mhead"><div><div class="t">${esc(t.titulo)}</div><div class="m">${esc(c||"Sin categoría")} · ${fdate(t.fecha)} · sobre <span class="num">${fmt(+t.valor)}</span></div></div>${S.canWrite?allBtn(t.id):""}</div>
+    <ol class="mlist" id="mbook">${al.map((a,i)=>{ const n=nota(t.id,a.id); return `<li>
+      <span class="nm"><span class="idx">${i+1}</span>${esc(a.nombre)}</span>
+      <input class="g" id="g_${esc(t.id)}_${esc(a.id)}" data-t="${esc(t.id)}" data-a="${esc(a.id)}" inputmode="decimal" enterkeyhint="next" autocomplete="off" aria-label="${esc(a.nombre)}, ${esc(t.titulo)}" placeholder="—" value="${n==null?"":n}"${ro}>
+      <span class="mtot num" data-a="${esc(a.id)}"></span></li>`; }).join("")}</ol>
+    <p class="mavg" id="mavg"></p>
   </section>`;
 }
 const allBtn = tid => `<button class="btn mini ghost" type="button" data-all="${esc(tid)}" title="Pone la misma nota a los alumnos que aún no tienen">Agregar a todos</button>`;
@@ -489,6 +594,15 @@ function applyAll(box){
   setSave(n?"saving":"", n ? `Guardando ${n} notas…` : "Todos ya tenían nota");
 }
 function refreshTotals(){
+  const mb = $("#mbook");
+  if(mb){
+    const al = alumnosDe(S.sec); const tp = tareasDe(S.sec,S.parcial);
+    mb.querySelectorAll(".mtot").forEach(el=>{ const s = score(el.dataset.a, tp, al); el.className = "mtot num "+(s&&s.complete?tone(s.pct):""); el.textContent = s && s.asig ? `Acumulado ${fmt(s.obt)} / ${fmt(s.total)}` : "Acumulado —"; });
+    const t = S.tareas[S.mTask]; const vals = al.map(a=>nota(S.mTask,a.id)).filter(v=>v!=null);
+    const m = $("#mavg"); if(m && t) m.textContent = vals.length ? `Promedio de esta tarea: ${fmt(vals.reduce((x,v)=>x+v,0)/vals.length)} de ${fmt(+t.valor)} · ${vals.length} de ${al.length} calificados` : `Nadie tiene nota en esta tarea todavía.`;
+    document.querySelectorAll(".tchip").forEach(ch=>{ const id=ch.dataset.mtask; const done=al.filter(a=>nota(id,a.id)!=null).length; const sm=ch.querySelectorAll("small")[1]; if(sm) sm.textContent=`sobre ${fmt(+S.tareas[id]?.valor)} · ${done}/${al.length}`; ch.classList.toggle("done",done===al.length); const bar=ch.querySelector(".prog span"); if(bar) bar.style.width=(al.length?done/al.length*100:0)+"%"; });
+    return;
+  }
   const book = $("#book"); if(!book) return;
   const al = alumnosDe(S.sec); const tp = tareasDe(S.sec,S.parcial);
   const pcts=[];
@@ -620,6 +734,12 @@ function nivelNote(){
 }
 function noSec(){ return `<div class="card empty"><h3>Crea tu primera sección</h3><p>Empieza con el grupo que impartes, por ejemplo “9no A · Matemáticas”. Luego agregas alumnos y tareas.</p><button class="btn" data-go="alumnos">Crear sección</button></div>`; }
 
+function centrar(boxSel, itemSel){
+  const box=$(boxSel), it=box && box.querySelector(itemSel); if(!it) return;
+  const br=box.getBoundingClientRect(), r=it.getBoundingClientRect();
+  if(r.left >= br.left && r.right <= br.right) return;            // ya se ve completo
+  box.scrollLeft += (r.left - br.left) - (br.width - r.width)/2;  // lo centra
+}
 function render(){
   if(S.noDb) return;
   if(!["secciones","alumnos","tareas","notas"].every(k=>S.loaded[k])) return;
@@ -636,6 +756,7 @@ function render(){
   const av = $("#aviso"); if(av){ av.open = !!S.avisoOpen; av.addEventListener("toggle", ()=>{ S.avisoOpen = av.open; }); }
   for(const [k,v] of Object.entries(keep)){ const el=document.getElementById(k); if(el) el.value=v; }
   if(S.view==="notas") refreshTotals();
+  centrar("#secTiles", ".tile[aria-selected=true]"); centrar(".tchips", ".tchip[aria-pressed=true]");
   if(aid){ const el=document.getElementById(aid); if(el && el!==active){ el.focus({preventScroll:true}); try{ if(sel) el.setSelectionRange(sel[0],sel[1]); }catch(e){} } }
 }
 
@@ -651,6 +772,7 @@ document.querySelector("nav.tabs").addEventListener("click", e=>{ const a=e.targ
 
 view.addEventListener("click", e=>{
   const g = e.target.closest("[data-go]"); if(g){ e.preventDefault(); go(g.dataset.go); return; }
+  const mt = e.target.closest("[data-mtask]"); if(mt){ S.mTask = mt.dataset.mtask; render(); const first=document.querySelector("#mbook input.g"); return; }
   const ab = e.target.closest("[data-all]"); if(ab){
     const tid = ab.dataset.all; const box = document.createElement("span"); box.className="allf"; box.dataset.tid=tid;
     box.innerHTML = `<input class="allv" inputmode="decimal" autocomplete="off" aria-label="Nota para todos" value="${fmt(+S.tareas[tid]?.valor||10)}"><button class="btn mini" type="button" data-allok>OK</button><button class="btn mini ghost" type="button" data-allx aria-label="Cancelar">✕</button>`;
@@ -738,6 +860,8 @@ view.addEventListener("keydown", e=>{
 });
 view.addEventListener("focusin", e=>{ if(e.target.classList.contains("g")) e.target.select(); });
 
+MQ.addEventListener ? MQ.addEventListener("change", ()=>render()) : MQ.addListener(()=>render());
+$("#btnMenu").addEventListener("click", ()=>{ const a=$("#acct"); const o=a.classList.toggle("open"); $("#btnMenu").setAttribute("aria-expanded", o); });
 /* ---------- arranque ---------- */
 const h = (location.hash||"").slice(1); if(VIEWS.includes(h)) S.view=h;
 S.sec = store.get("cn_sec");
