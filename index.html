@@ -1,0 +1,889 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#0e1421">
+<title>Cuaderno de Notas</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Atkinson+Hyperlegible:wght@400;700&family=Red+Hat+Mono:wght@500;600&display=swap">
+<style>
+html{-webkit-text-size-adjust:100%}
+body{margin:0}
+[hidden]{display:none!important}
+/* Layout: cuaderno cuadriculado — encabezado con margen rojo, pestañas, y la libreta de notas como cuadrícula con columna de alumnos fija */
+:root{
+  --paper:#f4f7fb; --surface:#ffffff; --ink:#162034; --muted:#5a6578; --line:#d9e0ea; --grid:#e8edf5;
+  --accent:#2d4fd6; --accent-ink:#ffffff; --accent-soft:#e5eafc; --margin:#d9473b;
+  --ok:#17784b; --ok-soft:#e1f2e8; --warn:#9a5c00; --warn-soft:#fbefd8; --bad:#c0302a; --bad-soft:#fbe5e3;
+  --f-display:"Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --f-body:"Atkinson Hyperlegible", "Segoe UI", system-ui, sans-serif;
+  --f-num:"Red Hat Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+  --r:10px; --n1:#d9661f; --n2:#13865a; --n3:#2d4fd6; --n4:#7a3fd1; --tile-ink:#ffffff;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --paper:#0e1421; --surface:#151d2d; --ink:#e5e9f1; --muted:#98a2b5; --line:#263145; --grid:#1b2436;
+  --accent:#8fa3ff; --accent-ink:#0e1421; --accent-soft:#222d55; --margin:#ff7b6f;
+  --ok:#5fcf95; --ok-soft:#14352a; --warn:#f0b35a; --warn-soft:#382a12; --bad:#ff8a7e; --bad-soft:#3d1d1b; --n1:#ffa25e; --n2:#5fcf95; --n3:#8fa3ff; --n4:#c9a6ff; --tile-ink:#0e1421; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --paper:#0e1421; --surface:#151d2d; --ink:#e5e9f1; --muted:#98a2b5; --line:#263145; --grid:#1b2436;
+  --accent:#8fa3ff; --accent-ink:#0e1421; --accent-soft:#222d55; --margin:#ff7b6f;
+  --ok:#5fcf95; --ok-soft:#14352a; --warn:#f0b35a; --warn-soft:#382a12; --bad:#ff8a7e; --bad-soft:#3d1d1b; --n1:#ffa25e; --n2:#5fcf95; --n3:#8fa3ff; --n4:#c9a6ff; --tile-ink:#0e1421; color-scheme:dark}
+
+*{box-sizing:border-box}
+body{background:var(--paper);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.5}
+.wrap{max-width:1100px;margin:0 auto;padding-left:max(16px, env(safe-area-inset-left, 0px));padding-right:max(16px, env(safe-area-inset-right, 0px));padding-block:20px 48px}
+h1,h2,h3{font-family:var(--f-display);text-wrap:balance;margin:0;line-height:1.15}
+button,input,select,textarea{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.num{font-family:var(--f-num);font-variant-numeric:tabular-nums}
+
+/* header */
+.top{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:12px 20px;padding-left:18px;border-left:3px solid var(--margin)}
+.brand h1{font-size:clamp(26px,5vw,36px);font-weight:800;letter-spacing:-.01em}
+.brand p{margin:2px 0 0;color:var(--muted);font-size:14px}
+.save{font-size:12px;color:var(--muted);letter-spacing:.04em;text-transform:uppercase;display:flex;align-items:center;gap:6px}
+.save i{width:8px;height:8px;border-radius:50%;background:var(--ok);display:inline-block}
+.save.saving i{background:var(--warn)} .save.err i{background:var(--bad)}
+
+.controls{display:flex;flex-wrap:wrap;gap:10px 14px;align-items:center;margin-top:10px}
+.field-inline{display:flex;flex-direction:column;gap:3px}
+.lbl{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:700}
+select,input[type=text],input[type=number],input[type=date],textarea{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:8px 10px;min-height:40px;max-width:100%}
+textarea{min-height:110px;resize:vertical;width:100%}
+.seg{display:inline-flex;background:var(--surface);border:1px solid var(--line);border-radius:9px;padding:3px;gap:2px}
+.seg button{border:0;background:transparent;border-radius:7px;padding:6px 12px;min-height:34px;cursor:pointer;font-family:var(--f-num);font-weight:600;color:var(--muted)}
+.seg button[aria-pressed=true]{background:var(--accent);color:var(--accent-ink)}
+
+nav.tabs{display:flex;gap:4px;margin-top:18px;border-bottom:1px solid var(--line);overflow-x:auto}
+nav.tabs a{padding:10px 14px;text-decoration:none;color:var(--muted);font-weight:700;border-bottom:3px solid transparent;margin-bottom:-1px;white-space:nowrap}
+nav.tabs a[aria-current=page]{color:var(--ink);border-color:var(--accent)}
+
+main{margin-top:22px;display:grid;gap:22px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:18px}
+.card h2{font-size:19px;font-weight:600}
+.sub{color:var(--muted);font-size:14px;margin:4px 0 0}
+.note{background:var(--accent-soft);border-radius:8px;padding:10px 14px;font-size:14px}
+
+/* stats */
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}
+.stat{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:14px 16px}
+.stat .v{font-family:var(--f-num);font-size:28px;font-weight:600;line-height:1.1;margin-top:4px}
+.stat .h{font-size:13px;color:var(--muted)}
+.stat.ok .v{color:var(--ok)} .stat.bad .v{color:var(--bad)} .stat.warn .v{color:var(--warn)}
+
+.two{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);gap:22px}
+@media (max-width:820px){.two{grid-template-columns:minmax(0,1fr)}}
+
+/* tables */
+.scroll{overflow-x:auto;-webkit-overflow-scrolling:touch;margin-top:12px;border:1px solid var(--line);border-radius:8px}
+table{border-collapse:separate;border-spacing:0;width:100%;font-size:14px}
+th,td{padding:8px 10px;border-bottom:1px solid var(--grid);text-align:left;vertical-align:middle}
+th{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:700;background:var(--surface)}
+td.r,th.r{text-align:right}
+tbody tr:last-child td{border-bottom:0}
+.sticky{position:sticky;left:0;background:var(--surface);z-index:1;box-shadow:1px 0 0 var(--line)}
+.pill{display:inline-block;font-size:12px;font-weight:700;padding:2px 9px;border-radius:999px;white-space:nowrap}
+.pill.ok{background:var(--ok-soft);color:var(--ok)} .pill.warn{background:var(--warn-soft);color:var(--warn)} .pill.bad{background:var(--bad-soft);color:var(--bad)} .pill.none{background:var(--grid);color:var(--muted)}
+.c-ok{color:var(--ok)} .c-warn{color:var(--warn)} .c-bad{color:var(--bad)} .c-muted{color:var(--muted)}
+.idx{color:var(--muted);font-family:var(--f-num);font-size:12px;margin-right:6px}
+
+/* gradebook grid */
+.grid-wrap{background-color:var(--surface);background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);background-size:18px 18px}
+table.book th,table.book td{border-right:1px solid var(--grid)}
+table.book thead th{vertical-align:bottom;min-width:128px;text-transform:none;letter-spacing:0;font-size:13px;color:var(--ink)}
+table.book thead th .t{font-weight:700;display:block;line-height:1.25}
+table.book thead th .m{font-weight:400;color:var(--muted);font-size:12px;display:block;margin-top:2px}
+table.book td{background:transparent}
+table.book thead th.cat{background:var(--accent-soft);color:var(--accent);font-weight:700;font-size:12px;letter-spacing:.04em;text-transform:uppercase;text-align:center;vertical-align:middle;border-bottom:1px solid var(--line)}
+table.book thead th.cat .num{color:var(--ink);margin-left:4px}
+table.book thead th.nocat{background:var(--warn-soft);color:var(--warn)}
+.aviso{border:1px solid var(--line);border-radius:var(--r);background:var(--surface)}
+.aviso.pend{border-color:var(--warn);background:var(--warn-soft)}
+.aviso.done{border-color:var(--ok);background:var(--ok-soft)}
+.aviso summary{display:flex;flex-wrap:wrap;align-items:flex-start;gap:10px;padding:12px 16px;cursor:pointer;list-style:none}
+.aviso summary::-webkit-details-marker{display:none}
+.aviso summary svg{flex:none;margin-top:2px}
+.aviso.pend summary svg{color:var(--warn)} .aviso.done summary svg{color:var(--ok)}
+.aviso summary>span:nth-of-type(1){flex:1;min-width:0}
+.aviso .more{flex:none;font-size:13px;font-weight:700;color:var(--accent);white-space:nowrap}
+.aviso[open] .more{opacity:.7}
+.aviso-body{padding:0 16px 16px;background:var(--surface);border-radius:0 0 var(--r) var(--r);padding-top:12px}
+.btn.mini{padding:3px 8px;min-height:30px;font-size:12px;border-radius:6px;font-weight:700}
+table.book thead th .btn.mini{margin-top:8px;display:block;width:100%;white-space:nowrap}
+.allf{display:flex;gap:4px;margin-top:8px;align-items:center}
+.allf .allv{width:46px;min-height:30px;padding:2px 4px;text-align:center;font-family:var(--f-num);font-weight:600;border:1px solid var(--accent);border-radius:6px;background:var(--surface)}
+.allf .allv.bad{border-color:var(--bad);background:var(--bad-soft)}
+.allf .btn.mini{margin-top:0;width:auto;display:inline-block}
+.tiles{display:flex;gap:10px;overflow-x:auto;padding:6px 2px 8px;margin-top:4px;scroll-snap-type:x proximity}
+.tile{flex:none;display:flex;align-items:center;gap:10px;min-width:180px;max-width:240px;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:10px 14px 10px 10px;cursor:pointer;scroll-snap-align:start}
+.tile[aria-selected=true]{border-color:var(--tc,var(--accent));box-shadow:0 0 0 2px var(--tc,var(--accent)) inset}
+.tile .ico{flex:none;width:46px;height:46px;border-radius:12px;display:flex;align-items:baseline;justify-content:center;padding-top:7px;background:var(--tc,var(--accent));color:var(--tile-ink);font-family:var(--f-display)}
+.tile .ico b{font-size:26px;font-weight:800;line-height:1}
+.tile .ico i{font-style:normal;font-size:12px;font-weight:700;margin-left:1px}
+.tile .tx{min-width:0;display:flex;flex-direction:column}
+.tile .tx b{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tile .tx small{color:var(--muted);font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tile.n1{--tc:var(--n1)} .tile.n4{--tc:var(--n2)} .tile.n7{--tc:var(--n3)} .tile.n0{--tc:var(--muted)} .tile.mt{--tc:var(--n4)}
+.tile.add{border-style:dashed;min-width:160px}
+.tile.add .ico{background:var(--grid);color:var(--muted);align-items:center;padding-top:0}
+.miss{display:block;color:var(--muted);font-size:11px;line-height:1.3;margin-top:3px;max-width:180px}
+select.catsel{min-height:34px;padding:4px 8px;font-size:13px}
+table.book td.sticky,table.book th.sticky{min-width:170px;max-width:220px}
+input.g{width:64px;min-height:36px;text-align:center;font-family:var(--f-num);font-weight:600;padding:4px;border-radius:6px;border:1px solid var(--line);background:var(--surface)}
+input.g.bad{border-color:var(--bad);background:var(--bad-soft)}
+input.g:read-only{background:transparent;border-color:transparent}
+.of{color:var(--muted);font-size:12px;font-family:var(--f-num);margin-left:3px}
+tfoot td{font-family:var(--f-num);font-size:13px;color:var(--muted);border-top:1px solid var(--line);background:var(--surface)}
+
+/* distribution */
+.dist{display:grid;gap:8px;margin-top:14px}
+.dist .row{display:grid;grid-template-columns:62px minmax(0,1fr) 28px;align-items:center;gap:10px;font-size:13px}
+.bar{height:14px;border-radius:4px;background:var(--grid);overflow:hidden}
+.bar span{display:block;height:100%;border-radius:4px}
+
+/* lists & forms */
+.list{display:grid;margin-top:12px}
+.item{display:flex;flex-wrap:wrap;align-items:center;gap:6px 12px;padding:10px 0;border-bottom:1px solid var(--grid)}
+.item:last-child{border-bottom:0}
+.item .main{flex:1 1 200px;min-width:0}
+.item .main b{display:block}
+.item .meta{color:var(--muted);font-size:13px}
+.chip{font-size:12px;background:var(--grid);border-radius:6px;padding:2px 8px;color:var(--muted);font-weight:700}
+form.f{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;align-items:end;margin-top:14px}
+form.f .wide{grid-column:1/-1}
+form.f label{display:flex;flex-direction:column;gap:4px}
+form.f input,form.f select{width:100%}
+.btn{border:1px solid var(--accent);background:var(--accent);color:var(--accent-ink);border-radius:8px;padding:8px 16px;min-height:40px;font-weight:700;cursor:pointer}
+.btn.ghost{background:transparent;color:var(--accent)}
+.btn.danger{border-color:var(--line);background:transparent;color:var(--muted);padding:4px 10px;min-height:32px;font-weight:600;font-size:13px}
+.btn.danger.armed{border-color:var(--bad);color:var(--bad);background:var(--bad-soft)}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.meter{height:8px;background:var(--grid);border-radius:4px;overflow:hidden;margin-top:6px;max-width:260px}
+.meter span{display:block;height:100%;background:var(--accent)}
+.meter.full span{background:var(--ok)} .meter.over span{background:var(--bad)}
+.ph-head{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:baseline;gap:6px 16px;margin-top:18px;padding-top:14px;border-top:1px solid var(--line)}
+.ph-head:first-of-type{border-top:0;margin-top:8px;padding-top:0}
+.empty{text-align:center;padding:36px 16px;color:var(--muted)}
+.empty h3{color:var(--ink);font-size:20px;margin-bottom:6px}
+.empty .btn{margin-top:14px}
+.secs{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.secchip{display:flex;align-items:center;gap:8px;border:1px solid var(--line);border-radius:999px;padding:4px 6px 4px 14px;background:var(--surface)}
+.secchip.on{border-color:var(--accent);background:var(--accent-soft)}
+.secchip button.pick{border:0;background:none;cursor:pointer;font-weight:700;padding:4px 0}
+@media (prefers-reduced-motion:no-preference){.bar span,.meter span{transition:width .3s ease}}
+.acct{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:12px;font-size:13px;color:var(--muted)}
+.acct .who{margin-right:auto;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.login{max-width:440px;margin:40px auto;text-align:center}
+.periodo{max-width:520px;margin:24px auto}
+.periodo form{display:grid;gap:12px;margin-top:14px}
+.periodo label.chk{display:flex;gap:10px;align-items:flex-start;font-size:14px}
+.periodo label.chk input{margin-top:3px;width:18px;height:18px}
+.periodo .row{display:flex;gap:8px;flex-wrap:wrap}
+.login .btn{margin-top:16px}
+.setup ol{text-align:left;line-height:1.7;padding-left:20px}
+.setup code{font-family:var(--f-num);background:var(--grid);padding:1px 5px;border-radius:4px}
+</style>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+</head>
+<body>
+
+<div class="wrap">
+  <header class="top">
+    <div class="brand">
+      <h1>Cuaderno de Notas</h1>
+      <p id="subtitle">Registro de tareas y calificaciones</p>
+    </div>
+    <div id="save" class="save" aria-live="polite"><i></i><span>Cargando…</span></div>
+  </header>
+  <div class="acct" id="acct" hidden>
+    <span class="who" id="who"></span>
+    <button class="btn mini ghost" type="button" id="btnExport">Descargar respaldo</button>
+    <button class="btn mini ghost" type="button" id="btnImport">Importar respaldo</button>
+    <input type="file" id="fileImport" accept="application/json,.json" hidden>
+    <button class="btn mini ghost" type="button" id="btnSalir">Cerrar sesión</button>
+  </div>
+
+  <div class="lbl" id="gradosLbl" style="margin-top:18px">Grados</div>
+  <div class="tiles" id="secTiles" role="tablist" aria-label="Grados"></div>
+  <div class="controls" id="controls">
+    <label class="field-inline" id="perBox" hidden><span class="lbl">Período</span><select id="perSel" aria-label="Período escolar"></select></label>
+    <div class="field-inline"><span class="lbl">Parcial</span>
+      <div class="seg" id="parSeg" role="group" aria-label="Parcial"></div>
+    </div>
+  </div>
+
+  <nav class="tabs" aria-label="Vistas">
+    <a href="#resumen" data-view="resumen">Resumen</a>
+    <a href="#notas" data-view="notas">Notas</a>
+    <a href="#tareas" data-view="tareas">Tareas</a>
+    <a href="#alumnos" data-view="alumnos">Alumnos y secciones</a>
+  </nav>
+
+  <main id="view">
+    <div class="card empty"><h3>Abriendo tu cuaderno</h3><p>Aquí verás tus secciones, tareas y notas en cuanto carguen.</p></div>
+  </main>
+</div>
+
+<script>
+(function(){
+/* ============================================================
+   CONFIGURACIÓN DE FIREBASE
+   Pega aquí la configuración de TU proyecto (Firebase > Configuración
+   del proyecto > Tus apps > Web). Estos datos NO son secretos: lo que
+   protege tus notas son las reglas de seguridad (firestore.rules) y el
+   inicio de sesión con Google. Nunca pongas notas ni nombres de alumnos
+   en este archivo.
+   ============================================================ */
+const FIREBASE_CONFIG = {
+  apiKey: "",
+  authDomain: "",
+  projectId: "",
+  storageBucket: "",
+  messagingSenderId: "",
+  appId: ""
+};
+
+const MIN = 70;               // nota mínima para aprobar (sobre 100)
+const PARCIALES = [1,2,3,4];
+// Distribución de la nota de cada parcial según el nivel de la sección (porcentajes)
+const NIVELES = {
+  "1-3": {label:"1ro a 3ro", cats:[["Tarea en clase",45],["Tarea extra clase",10],["Valores",10],["Expresiones artísticas",5],["Examen",30]]},
+  "4-6": {label:"4to a 6to", cats:[["Tarea en clase",35],["Tarea extra clase",10],["Valores",10],["Expresiones artísticas",5],["Examen",40]]},
+  "7-9": {label:"7mo a 9no", cats:[["Tarea en clase",25],["Tarea extra clase",10],["Valores",10],["Expresiones artísticas",5],["Examen",50]]}
+};
+const ALIAS = {"tarea":"Tarea en clase","tarea clase":"Tarea en clase","tareas en clase":"Tarea en clase","tareas extra clase":"Tarea extra clase","exámenes":"Examen","examenes":"Examen","examen corto":"Examen","expresión":"Expresiones artísticas","expresiones":"Expresiones artísticas","expresiones artisticas":"Expresiones artísticas","valor":"Valores"};
+// El nivel se decide solo a partir del grado (1ro–3ro, 4to–6to, 7mo–9no)
+const GRADOS = ["1ro","2do","3ro","4to","5to","6to","7mo","8vo","9no"];
+const PALABRAS = {primero:1,primer:1,segundo:2,tercero:3,tercer:3,cuarto:4,quinto:5,sexto:6,septimo:7,octavo:8,noveno:9};
+function parseGrado(nombre){
+  const s = String(nombre||"").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"");
+  for(const [w,g] of Object.entries(PALABRAS)) if(new RegExp("\\b"+w+"\\b").test(s)) return g;
+  const m = s.match(/(?:^|[^\d])([1-9])\s*(?:ro|do|er|to|mo|vo|no|°|º|o)(?![a-z])/) || s.match(/grado\s*([1-9])(?!\d)/) || s.match(/(?:^|[^\d])([1-9])\s*grado/);
+  return m ? +m[1] : null;
+}
+const nivelDeGrado = g => g ? (g<=3 ? "1-3" : g<=6 ? "4-6" : "7-9") : null;
+function gradoDe(sec){ const s = S.secciones[sec]; if(!s) return null; return (s.grado>=1 && s.grado<=9) ? +s.grado : parseGrado(s.nombre); }
+function nivelDe(sec){ const g = gradoDe(sec); if(g) return nivelDeGrado(g); const n = S.secciones[sec]?.nivel; return NIVELES[n] ? n : null; }
+const catsDe = sec => nivelDe(sec) ? NIVELES[nivelDe(sec)].cats : [];
+function catOf(tipo, sec){ const t = String(tipo||"").trim(); const n = ALIAS[t.toLowerCase()] || t; return catsDe(sec).some(c=>c[0]===n) ? n : null; }
+const totalPeso = sec => catsDe(sec).reduce((s,c)=>s+c[1],0);
+const VIEWS = ["resumen","notas","tareas","alumnos"];
+
+const S = {secciones:{},alumnos:{},tareas:{},notas:{},loaded:{},sec:null,parcial:null,view:"resumen",db:null,noDb:false,canWrite:true};
+const local = {};      // cambios aún sin confirmar: tareaId -> {alumnoId: valor}
+const existsDoc = {};  // notas/<tareaId> creado en esta sesión
+
+const $ = s => document.querySelector(s);
+const view = $("#view");
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const fmt = n => n == null ? "—" : (Math.round(n*10)/10).toLocaleString("es-HN");
+const today = () => new Date().toISOString().slice(0,10);
+const fdate = d => { if(!d) return "Sin fecha"; const [y,m,dd]=d.split("-"); return `${+dd} ${["ene","feb","mar","abr","may","jun","jul","ago","sep","oct","nov","dic"][+m-1]}`; };
+const store = { get(k){try{return localStorage.getItem(k)}catch(e){return null}}, set(k,v){try{localStorage.setItem(k,v)}catch(e){}} };
+
+/* ---------- datos derivados ---------- */
+const secList = () => Object.entries(S.secciones).map(([id,d])=>({id,...d})).sort((a,b)=>String(a.nombre).localeCompare(b.nombre,"es"));
+const alumnosDe = sec => Object.entries(S.alumnos).filter(([,a])=>a.seccionId===sec).map(([id,a])=>({id,...a})).sort((a,b)=>ordenAl(a)-ordenAl(b)); // orden de lista, tal como se pegó
+const ordenAl = a => +(a.orden ?? a.creado ?? 0);
+const tareasDe = (sec,p) => ordenTareas(Object.entries(S.tareas).filter(([,t])=>t.seccionId===sec && (p==null || +t.parcial===p)).map(([id,t])=>({id,...t})), sec);
+function nota(tid,aid){
+  if(local[tid] && aid in local[tid]) return local[tid][aid];
+  const v = S.notas[tid]?.notas?.[aid];
+  return (v === null || v === undefined || v === "") ? null : +v;
+}
+function calificada(t, alumnos){ return alumnos.some(a => nota(t.id,a.id) != null); }
+// Cada categoría aporta su porcentaje completo; las tareas dentro de ella se suman sobre sus puntos.
+function score(aid, tareas, alumnos){
+  if(!tareas.length) return null;
+  const sec = tareas[0].seccionId;
+  let obt=0, asig=0; const byCat={};
+  // El acumulado es la suma directa de las notas puestas (las vacías no suman).
+  // Solo si las tareas de una categoría valen más que su porcentaje (ej. examen sobre 100 que vale 50) se ajusta a escala.
+  for(const [name,w] of catsDe(sec)){
+    const todas = tareas.filter(t=>catOf(t.tipo,sec)===name);
+    const ts = todas.filter(t=>nota(t.id,aid)!=null || calificada(t,alumnos));
+    if(!ts.length) continue;
+    const valorTotal = todas.reduce((s,t)=>s+(+t.valor||0),0);
+    const got = ts.reduce((s,t)=>s+(nota(t.id,aid)||0),0);
+    const pts = valorTotal > w ? got*w/valorTotal : got;
+    obt += pts; asig += w; byCat[name]=pts;
+  }
+  const total = totalPeso(sec); const missing = catsDe(sec).filter(c=>!(c[0] in byCat)).map(c=>c[0]);
+  const complete = total>0 && !missing.length;
+  // Solo hay porcentaje (y aprobado/reprobado) cuando todas las categorías tienen nota
+  return {obt, asig, total, complete, missing, pct: complete ? obt/total*100 : null, byCat};
+}
+function ordenTareas(list, sec){
+  const order = Object.fromEntries(catsDe(sec).map((c,i)=>[c[0],i]));
+  return list.sort((a,b)=>((order[catOf(a.tipo,sec)] ?? 99) - (order[catOf(b.tipo,sec)] ?? 99)) || (a.fecha||"9").localeCompare(b.fecha||"9") || (a.creado||0)-(b.creado||0));
+}
+function estadoS(s){
+  if(!s || !s.asig) return {k:"none",t:"Sin notas"};
+  if(!s.complete) return {k:"none",t:"Faltan notas",d:"Falta: "+s.missing.join(", ")};
+  return estado(s.pct);
+}
+function estado(pct){
+  if(pct==null) return {k:"none",t:"Sin notas"};
+  if(pct>=MIN) return {k:"ok",t:"Aprobando"};
+  if(pct>=MIN-10) return {k:"warn",t:"En riesgo"};
+  return {k:"bad",t:"Reprobando"};
+}
+const tone = pct => pct==null ? "c-muted" : pct>=MIN ? "c-ok" : pct>=MIN-10 ? "c-warn" : "c-bad";
+
+/* ---------- guardado ---------- */
+function setSave(k,msg){ const el=$("#save"); el.className="save"+(k?" "+k:""); el.querySelector("span").textContent=msg; }
+let inflight = 0;
+async function write(fn){
+  if(!S.db || !S.canWrite) return;
+  inflight++; setSave("saving","Guardando…");
+  try{ await fn(); inflight--; if(!inflight) setSave("","Guardado"); }
+  catch(e){
+    inflight--;
+    if(e && e.code==="permission-denied"){ setSave("err","Sin permiso: revisa las reglas de Firebase"); return; }
+    setSave("err", e && e.code==="quota_exceeded" ? "Espacio lleno: elimina datos viejos" : "No se pudo guardar. Revisa tu conexión.");
+  }
+}
+const queue = {};
+function queueNota(tid, aid, val){
+  const q = queue[tid] || (queue[tid] = {pending:{}, timer:null, chain:Promise.resolve()});
+  q.pending[aid] = val; clearTimeout(q.timer); setSave("saving","Guardando…");
+  q.timer = setTimeout(()=>flush(tid), 650);
+}
+function flush(tid){
+  const q = queue[tid]; const batch = q.pending; q.pending = {};
+  q.chain = q.chain.then(()=>write(async()=>{
+    const ref = S.db.doc("notas/"+tid);
+    if(S.notas[tid] || existsDoc[tid]){ const upd={}; for(const [k,v] of Object.entries(batch)) upd["notas."+k]=v; await ref.update(upd); }
+    else { await ref.set({seccionId:S.tareas[tid]?.seccionId||S.sec, notas:{...batch}}); existsDoc[tid]=true; }
+    for(const [aid,v] of Object.entries(batch)){ if(local[tid] && local[tid][aid]===v && !(aid in q.pending)) delete local[tid][aid]; }
+  }));
+}
+
+/* ---------- encabezado ---------- */
+function renderControls(){
+  const secs = secList();
+  const tiles = secs.slice().sort((a,b)=>(gradoDe(a.id)||99)-(gradoDe(b.id)||99) || String(a.nombre).localeCompare(b.nombre,"es"));
+  $("#secTiles").innerHTML = !S.loaded.secciones ? "" : tiles.length ? tiles.map(s=>{ const g=gradoDe(s.id); const nv=nivelDe(s.id); const lab = g ? GRADOS[g-1] : "?";
+    return `<button type="button" class="tile n${nv?nv[0]:"0"}${/tecnolog/i.test(String(s.materia||"").normalize("NFD").replace(/[\u0300-\u036f]/g,""))?" mt":""}" role="tab" data-sec="${esc(s.id)}" aria-selected="${s.id===S.sec}">
+      <span class="ico" aria-hidden="true"><b>${lab.slice(0,1)}</b><i>${lab.slice(1)}</i></span>
+      <span class="tx"><b>${esc(s.nombre)}</b><small>${s.materia?esc(s.materia)+" · ":""}${alumnosDe(s.id).length} alumnos</small></span></button>`; }).join("")
+    + `<button type="button" class="tile add" data-go="alumnos"><span class="ico" aria-hidden="true"><b>+</b></span><span class="tx"><b>Nuevo grado</b><small>Crear sección</small></span></button>`
+    : `<button type="button" class="tile add" data-go="alumnos"><span class="ico" aria-hidden="true"><b>+</b></span><span class="tx"><b>Crea tu primer grado</b><small>Sección y alumnos</small></span></button>`;
+  $("#parSeg").innerHTML = PARCIALES.map(p=>`<button type="button" data-p="${p}" aria-pressed="${p===S.parcial}">${["I","II","III","IV"][p-1]}</button>`).join("");
+  document.querySelectorAll("nav.tabs a").forEach(a=>a.setAttribute("aria-current", a.dataset.view===S.view?"page":"false"));
+  const s = S.secciones[S.sec];
+  $("#subtitle").textContent = s ? `${S.periodoNombre?S.periodoNombre+" · ":""}${s.nombre}${s.materia?" · "+s.materia:""} · Parcial ${["I","II","III","IV"][S.parcial-1]}` : "Registro de tareas y calificaciones";
+}
+
+/* ---------- vistas ---------- */
+function vResumen(){
+  if(!S.sec) return noSec();
+  const al = alumnosDe(S.sec); const tp = tareasDe(S.sec,S.parcial);
+  if(!al.length) return `<div class="card empty"><h3>Esta sección aún no tiene alumnos</h3><p>Pega tu lista de alumnos y el resumen se llenará solo.</p><button class="btn" data-go="alumnos">Agregar alumnos</button></div>`;
+  const rows = al.map(a=>{
+    const per = PARCIALES.map(p=>score(a.id, tareasDe(S.sec,p), al));
+    // Promedio del año = (PI + PII + PIII + PIV) / 4, solo cuando los 4 parciales están completos
+    const listos = per.filter(x=>x && x.complete);
+    const faltan = PARCIALES.length - listos.length;
+    // Se va sumando: cada parcial con notas aporta su nota / 4, aunque falten parciales
+    const conNotas = per.filter(x=>x && x.asig);
+    const prom = conNotas.length ? conNotas.reduce((s,x)=>s+(x.total? x.obt/x.total*100 : 0),0)/PARCIALES.length : null;
+    return {a, per, prom, faltan, cur: per[S.parcial-1]};
+  });
+  const curP = rows.map(r=>r.cur?.pct).filter(x=>x!=null);
+  const avg = curP.length ? curP.reduce((s,x)=>s+x,0)/curP.length : null;
+  const incompletos = rows.filter(r=>r.cur && r.cur.asig && !r.cur.complete).length;
+  const faltaCats = [...new Set(rows.flatMap(r=>r.cur && r.cur.asig ? r.cur.missing : []))];
+  const ok = curP.filter(x=>x>=MIN).length, risk = curP.filter(x=>x<MIN).length;
+  const t0 = today();
+  let pend = 0; tp.filter(t=>t.fecha && t.fecha<=t0).forEach(t=>al.forEach(a=>{ if(nota(t.id,a.id)==null) pend++; }));
+  const nv = nivelDe(S.sec); const cats = catsDe(S.sec); const tot = totalPeso(S.sec);
+
+  const buckets = [["0–59",0,60,"var(--bad)"],["60–69",60,70,"var(--warn)"],["70–79",70,80,"var(--accent)"],["80–89",80,90,"var(--accent)"],["90–100",90,101,"var(--ok)"]].map(([l,lo,hi,c])=>({l,c,n:curP.filter(x=>x>=lo&&x<hi).length}));
+  const maxB = Math.max(1,...buckets.map(b=>b.n));
+
+  const upcoming = tp.map(t=>({t, done: al.filter(a=>nota(t.id,a.id)!=null).length}));
+
+  return `
+  ${S.secciones[S.sec]?.ejemplo ? `<p class="note">Estos son datos de ejemplo para que veas cómo funciona. Cuando crees tu propia sección, elimina “${esc(S.secciones[S.sec].nombre)}” desde <b>Alumnos y secciones</b>.</p>`:""}
+  <section class="stats">
+    <div class="stat"><div class="h">Alumnos</div><div class="v">${al.length}</div></div>
+    <div class="stat ${avg==null?"":avg>=MIN?"ok":avg>=MIN-10?"warn":"bad"}"><div class="h">Promedio del parcial</div><div class="v">${avg==null?"—":fmt(avg)+"%"}</div>${avg==null&&faltaCats.length?`<small class="miss">Falta: ${esc(faltaCats.join(", "))}</small>`:""}</div>
+    <div class="stat ${curP.length?"ok":""}"><div class="h">Aprobados en el parcial</div><div class="v">${curP.length?ok:"—"}</div></div>
+    <div class="stat ${curP.length?"bad":""}"><div class="h">Reprobados en el parcial</div><div class="v">${curP.length?risk:"—"}</div>${incompletos?`<small class="miss">${incompletos} con notas incompletas</small>`:""}</div>
+    <div class="stat ${pend?"warn":""}"><div class="h">Notas pendientes</div><div class="v">${pend}</div></div>
+  </section>
+  <div class="two">
+    <section class="card">
+      <h2>Rendimiento por alumno</h2>
+      <p class="sub">Nota de cada parcial sobre 100. El promedio del año se va sumando: cada parcial suma su nota entre 4. El estado final aparece cuando los 4 están completos.</p>
+      <div class="scroll"><table>
+        <thead><tr><th class="sticky">Alumno</th>${PARCIALES.map(p=>`<th class="r">P${["I","II","III","IV"][p-1]}</th>`).join("")}<th class="r">Prom. año</th><th>Estado</th></tr></thead>
+        <tbody>${rows.map((r,i)=>{ const e = r.faltan ? {k:"none",t:"Sin aprobar",d:`Faltan ${r.faltan} ${r.faltan===1?"parcial":"parciales"}`} : (r.prom>=MIN ? {k:"ok",t:"Aprobado"} : {k:"bad",t:"Reprobado"}); return `<tr>
+          <td class="sticky"><span class="idx">${i+1}</span>${esc(r.a.nombre)}</td>
+          ${r.per.map((x,pi)=>`<td class="r num ${x&&x.complete?tone(x.pct):""}"${x&&x.asig&&!x.complete?` title="Falta: ${esc(x.missing.join(", "))}"`:""}${pi+1===S.parcial?' style="font-weight:700"':""}>${x && x.asig ? fmt(x.obt) : "—"}</td>`).join("")}
+          <td class="r num ${r.faltan?"":tone(r.prom)}">${r.prom==null?"—":fmt(r.prom)}</td>
+          <td><span class="pill ${e.k}"${e.d?` title="${esc(e.d)}"`:""}>${e.t}</span>${e.d?`<small class="miss">${esc(e.d)}</small>`:""}</td></tr>`;}).join("")}</tbody>
+      </table></div>
+    </section>
+    <div style="display:grid;gap:22px;align-content:start">
+      <section class="card">
+        <h2>Distribución · Parcial ${["I","II","III","IV"][S.parcial-1]}</h2>
+        <p class="sub">${curP.length} de ${al.length} alumnos con el parcial completo</p>
+        <div class="dist">${buckets.map(b=>`<div class="row"><span class="num c-muted">${b.l}</span><div class="bar"><span style="width:${b.n/maxB*100}%;background:${b.c}"></span></div><span class="num r">${b.n}</span></div>`).join("")}</div>
+      </section>
+      <section class="card">
+        <h2>Distribución de la nota</h2>
+        ${nv ? `<p class="sub">${NIVELES[nv].label} · promedio de la sección por categoría en este parcial</p>
+        <div class="list">${cats.map(([name,w])=>{
+          const n = tp.filter(t=>catOf(t.tipo,S.sec)===name).length;
+          const vals = rows.map(r=>r.cur?.byCat?.[name]).filter(v=>v!=null);
+          const avgc = vals.length ? vals.reduce((s,v)=>s+v,0)/vals.length : null;
+          return `<div class="item"><div class="main"><b>${esc(name)}</b><span class="meta">${n} ${n===1?"tarea":"tareas"}</span></div><span class="num ${avgc==null?"c-muted":tone(avgc/w*100)}">${avgc==null?"—":fmt(avgc)}</span><span class="num c-muted">/ ${w}%</span></div>`;}).join("")}</div>
+        <p class="sub" style="margin-top:8px">Total del parcial: <b class="num">${tot}%</b>${tot!==100?' · <span class="c-warn">no suma 100</span>':""}</p>` : nivelNote()}
+      </section>
+      <section class="card">
+        <h2>Tareas del parcial</h2>
+        ${upcoming.length ? `<div class="list">${upcoming.map(({t,done})=>`<div class="item"><div class="main"><b>${esc(t.titulo)}</b><span class="meta">${esc(catOf(t.tipo,S.sec)||t.tipo)} · ${fdate(t.fecha)} · sobre <span class="num">${fmt(+t.valor)}</span></span></div><span class="pill ${done===al.length?"ok":done?"warn":(t.fecha&&t.fecha<=t0?"bad":"none")}">${done}/${al.length}</span></div>`).join("")}</div>` : `<p class="sub" style="margin-top:12px">No hay tareas en este parcial. <a href="#tareas" data-go="tareas">Agrega la primera</a>.</p>`}
+      </section>
+    </div>
+  </div>`;
+}
+
+function vNotas(){
+  if(!S.sec) return noSec();
+  const al = alumnosDe(S.sec); const tp = tareasDe(S.sec,S.parcial);
+  if(!al.length) return `<div class="card empty"><h3>Agrega alumnos primero</h3><p>La libreta muestra una fila por alumno.</p><button class="btn" data-go="alumnos">Agregar alumnos</button></div>`;
+  if(!tp.length) return `<div class="card empty"><h3>No hay tareas en el Parcial ${["I","II","III","IV"][S.parcial-1]}</h3><p>Crea una tarea y aparecerá aquí como una columna para calificar.</p><button class="btn" data-go="tareas">Crear tarea</button></div>`;
+  const ro = S.canWrite ? "" : " readonly";
+  const groups = [];
+  for(const t of tp){ const c = catOf(t.tipo,S.sec); const g = groups[groups.length-1]; if(g && g.c===c) g.n++; else groups.push({c, n:1, w:(catsDe(S.sec).find(x=>x[0]===c)||[])[1]}); }
+  return `${nivelDe(S.sec)?"":nivelNote()}<section class="card">
+    <h2>Libreta · Parcial ${["I","II","III","IV"][S.parcial-1]}</h2>
+    <p class="sub">Escribe la nota y se guarda sola. Enter baja al siguiente alumno. Deja vacío lo que no has calificado. El acumulado ya aplica los porcentajes de cada categoría.</p>
+    <div class="scroll grid-wrap"><table class="book" id="book">
+      <thead><tr><th class="sticky" rowspan="2">Alumno</th>${groups.map(g=>`<th class="cat${g.c?"":" nocat"}" colspan="${g.n}">${g.c?esc(g.c)+` <span class="num">${g.w}%</span>`:"Sin categoría (no cuenta)"}</th>`).join("")}<th class="r" rowspan="2">Acumulado</th></tr>
+      <tr>${tp.map(t=>`<th><span class="t">${esc(t.titulo)}</span><span class="m">${fdate(t.fecha)}</span><span class="m num">sobre ${fmt(+t.valor)}</span>${S.canWrite?allBtn(t.id):""}</th>`).join("")}</tr></thead>
+      <tbody>${al.map((a,i)=>`<tr data-a="${esc(a.id)}"><td class="sticky"><span class="idx">${i+1}</span>${esc(a.nombre)}</td>
+        ${tp.map(t=>{const n=nota(t.id,a.id);return `<td><input class="g" id="g_${esc(t.id)}_${esc(a.id)}" data-t="${esc(t.id)}" data-a="${esc(a.id)}" inputmode="decimal" autocomplete="off" aria-label="${esc(a.nombre)}, ${esc(t.titulo)}" value="${n==null?"":n}"${ro}></td>`;}).join("")}
+        <td class="r num tot" data-a="${esc(a.id)}"></td></tr>`).join("")}</tbody>
+      <tfoot><tr><td class="sticky">Promedio</td>${tp.map(t=>`<td class="avg" data-t="${esc(t.id)}"></td>`).join("")}<td class="r avgtot"></td></tr></tfoot>
+    </table></div>
+  </section>`;
+}
+const allBtn = tid => `<button class="btn mini ghost" type="button" data-all="${esc(tid)}" title="Pone la misma nota a los alumnos que aún no tienen">Agregar a todos</button>`;
+// Pone la misma nota a todos los alumnos que todavía no tienen nota en esa tarea
+function applyAll(box){
+  if(!box || !S.canWrite) return;
+  const tid = box.dataset.tid; const inp = box.querySelector(".allv");
+  const max = +S.tareas[tid]?.valor||100; const raw = inp.value.trim().replace(",","."); const num = Number(raw);
+  if(raw==="" || isNaN(num) || num<0 || num>max){ inp.classList.add("bad"); inp.title=`Debe estar entre 0 y ${fmt(max)}`; inp.focus(); return; }
+  let n=0;
+  for(const a of alumnosDe(S.sec)){ if(nota(tid,a.id)==null){ (local[tid] || (local[tid]={}))[a.id]=num; queueNota(tid,a.id,num); n++; } }
+  box.outerHTML = allBtn(tid);
+  refreshGrades();
+  setSave(n?"saving":"", n ? `Guardando ${n} notas…` : "Todos ya tenían nota");
+}
+function refreshTotals(){
+  const book = $("#book"); if(!book) return;
+  const al = alumnosDe(S.sec); const tp = tareasDe(S.sec,S.parcial);
+  const pcts=[];
+  book.querySelectorAll("td.tot").forEach(td=>{
+    const s = score(td.dataset.a, tp, al);
+    td.className = "r num tot "+(s&&s.complete?tone(s.pct):"");
+    td.innerHTML = s && s.asig ? `${fmt(s.obt)}<span class="of">/${fmt(s.total)}</span>` : "—";
+    td.title = s && s.asig && !s.complete ? "Falta: "+s.missing.join(", ") : "";
+    if(s && s.pct!=null) pcts.push(s.pct);
+  });
+  book.querySelectorAll("td.avg").forEach(td=>{
+    const t = S.tareas[td.dataset.t]; const vals = al.map(a=>nota(td.dataset.t,a.id)).filter(v=>v!=null);
+    td.textContent = vals.length ? fmt(vals.reduce((s,v)=>s+v,0)/vals.length)+" / "+fmt(+t.valor) : "—";
+  });
+  const at = book.querySelector(".avgtot"); if(at) at.textContent = pcts.length ? fmt(pcts.reduce((s,v)=>s+v,0)/pcts.length)+"%" : "Incompleto";
+}
+function refreshGrades(){
+  document.querySelectorAll("input.g").forEach(inp=>{
+    if(inp===document.activeElement) return;
+    const n = nota(inp.dataset.t, inp.dataset.a); const v = n==null?"":String(n);
+    if(inp.value!==v){ inp.value=v; inp.classList.remove("bad"); }
+  });
+  refreshTotals();
+}
+
+function vTareas(){
+  if(!S.sec) return noSec();
+  const al = alumnosDe(S.sec);
+  const dis = S.canWrite ? "" : " disabled";
+  const cats = catsDe(S.sec);
+  if(!cats.length) return nivelNote();
+  return `<section class="card">
+    <h2>Nueva tarea</h2>
+    <p class="sub">${NIVELES[nivelDe(S.sec)].label}: el valor de las tareas de cada categoría debe sumar su porcentaje. Si queda incompleto, la nota se calcula con lo asignado.</p>
+    <form class="f" id="fTarea">
+      <label class="wide"><span class="lbl">Título</span><input type="text" id="tTitulo" required maxlength="80" placeholder="Ej. Guía de ejercicios, Examen del parcial"></label>
+      <label><span class="lbl">Categoría</span><select id="tTipo">${(()=>{const ts=tareasDe(S.sec,S.parcial); return cats.map(([c,w])=>{const a=ts.filter(t=>catOf(t.tipo,S.sec)===c).reduce((s,t)=>s+(+t.valor||0),0); return `<option value="${esc(c)}">${esc(c)} · faltan ${fmt(Math.max(0,w-a))} de ${w}</option>`;}).join("");})()}</select></label>
+      <label><span class="lbl">Valor (pts)</span><input type="number" id="tValor" required min="0.5" max="1000" step="0.5" value="10"></label>
+      <label><span class="lbl">Fecha de entrega</span><input type="date" id="tFecha" value="${today()}"></label>
+      <label><span class="lbl">Parcial</span><select id="tParcial">${PARCIALES.map(p=>`<option value="${p}"${p===S.parcial?" selected":""}>Parcial ${["I","II","III","IV"][p-1]}</option>`).join("")}</select></label>
+      <div><button class="btn" type="submit"${dis}>Agregar tarea</button></div>
+    </form>
+  </section>
+  <section class="card">
+    <h2>Tareas de la sección</h2>
+    ${PARCIALES.map(p=>{
+      const ts = tareasDe(S.sec,p);
+      const missing = cats.filter(([c])=>!ts.some(t=>catOf(t.tipo,S.sec)===c)).map(c=>c[0]);
+      return `<div class="ph-head"><h3 style="font-size:16px">Parcial ${["I","II","III","IV"][p-1]}</h3><span class="meta c-muted">${ts.length? (missing.length?`Falta: ${missing.map(esc).join(", ")}`:'<span class="c-ok">Todas las categorías tienen tareas</span>') : ""}</span></div>
+      ${ts.length?`<div class="list">${ts.map(t=>{const done=al.filter(a=>nota(t.id,a.id)!=null).length; const c=catOf(t.tipo,S.sec);
+        if(S.canWrite && S.editTarea===t.id) return editForm(t, c, cats);
+        return `<div class="item"><div class="main"><b>${esc(t.titulo)}</b><span class="meta">${fdate(t.fecha)} · sobre <span class="num">${fmt(+t.valor)}</span> · calificadas ${done}/${al.length}</span></div><span class="chip${c?"":" c-warn"}">${esc(c||"Sin categoría")}</span>${S.canWrite?`<button class="btn danger" data-edit-t="${esc(t.id)}">Editar</button><button class="btn danger" data-del="tarea" data-id="${esc(t.id)}">Eliminar</button>`:""}</div>`;}).join("")}</div>`:`<p class="sub">Sin tareas.</p>`}`;
+    }).join("")}
+  </section>`;
+}
+
+function vAlumnos(){
+  const secs = secList(); const dis = S.canWrite ? "" : " disabled";
+  const al = S.sec ? alumnosDe(S.sec) : [];
+  return `<section class="card">
+    <h2>Secciones</h2>
+    <p class="sub">Una sección por grupo o materia que impartes.</p>
+    ${secs.length?`<div class="secs">${secs.map(s=>`<div class="secchip${s.id===S.sec?" on":""}"><button class="pick" data-pick="${esc(s.id)}">${esc(s.nombre)}${s.materia?` <span class="c-muted" style="font-weight:400">· ${esc(s.materia)}</span>`:""}</button><span class="chip">${gradoDe(s.id)?GRADOS[gradoDe(s.id)-1]:"Sin grado"}</span><span class="chip" title="Alumnos">${alumnosDe(s.id).length}</span>${S.canWrite?`<button class="btn danger" data-del="seccion" data-id="${esc(s.id)}">Eliminar</button>`:""}</div>`).join("")}</div>`:""}
+    <form class="f" id="fSec">
+      <label><span class="lbl">Nombre de la sección</span><input type="text" id="sNombre" required maxlength="40" placeholder="Ej. 8vo A, 3er grado B"></label>
+      <label><span class="lbl">Materia</span><input type="text" id="sMateria" maxlength="50" placeholder="Ej. Matemáticas"></label>
+      <div><button class="btn" type="submit"${dis}>Crear sección</button></div>
+      <p class="sub wide" id="sHint" aria-live="polite">Incluye el grado en el nombre (ej. “8vo A”) y la distribución de notas se aplica sola.</p>
+    </form>
+    ${S.sec?`<div class="ph-head" style="margin-top:18px;padding-top:14px;border-top:1px solid var(--line)"><span><b>${esc(S.secciones[S.sec]?.nombre)}</b>${gradoDe(S.sec)?` · ${GRADOS[gradoDe(S.sec)-1]} grado · ${NIVELES[nivelDe(S.sec)].label}`:""}</span>${gradoDe(S.sec)?"":gradoSelect(S.sec)}</div>
+    <p class="sub">${catsDe(S.sec).map(([c,w])=>`${esc(c)} ${w}%`).join(" · ") || "Elige el grado para aplicar la distribución de notas."}</p>`:""}
+  </section>
+  ${S.sec?`<section class="card">
+    <h2>Alumnos · ${esc(S.secciones[S.sec]?.nombre)}</h2>
+    <p class="sub">Pega la lista completa, un nombre por línea. Quedan en el mismo orden de tu lista; los que agregues después van al final y puedes moverlos con las flechas.</p>
+    <form class="f" id="fAl">
+      <label class="wide"><span class="lbl">Nombres</span><textarea id="aNombres" placeholder="Martínez López, Ana&#10;Hernández Paz, Carlos"></textarea></label>
+      <div><button class="btn" type="submit"${dis}>Agregar alumnos</button></div>
+    </form>
+    ${al.length?`<div class="list">${al.map((a,i)=>`<div class="item"><div class="main"><span class="idx">${i+1}</span>${esc(a.nombre)}</div>${S.canWrite?`<button class="btn danger" data-mv="-1" data-id="${esc(a.id)}" aria-label="Subir a ${esc(a.nombre)}"${i===0?" disabled":""}>↑</button><button class="btn danger" data-mv="1" data-id="${esc(a.id)}" aria-label="Bajar a ${esc(a.nombre)}"${i===al.length-1?" disabled":""}>↓</button><button class="btn danger" data-del="alumno" data-id="${esc(a.id)}">Eliminar</button>`:""}</div>`).join("")}</div>`:`<p class="sub" style="margin-top:12px">Todavía no hay alumnos en esta sección.</p>`}
+  </section>`:""}`;
+}
+// Puntos de tareas que faltan por asignar: peso de la categoría menos la suma de valores de sus tareas
+const CATS_TAREA = ["Tarea en clase","Tarea extra clase"];
+function faltan(sec,p){
+  const ts = tareasDe(sec,p);
+  return catsDe(sec).filter(c=>CATS_TAREA.includes(c[0])).map(([cat,peso])=>{
+    const asig = ts.filter(t=>catOf(t.tipo,sec)===cat).reduce((s,t)=>s+(+t.valor||0),0);
+    return {cat, peso, asig, falta:Math.max(0,peso-asig), exceso:Math.max(0,asig-peso)};
+  });
+}
+const sumF = arr => arr.reduce((s,x)=>s+x.falta,0);
+const BELL = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 8a6 6 0 1 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>`;
+function avisoTareas(){
+  if(!S.sec || !nivelDe(S.sec)) return "";
+  const cur = faltan(S.sec,S.parcial); const f = sumF(cur); const exc = cur.filter(x=>x.exceso);
+  const R = ["I","II","III","IV"];
+  const msg = f ? `Te faltan <b class="num">${fmt(f)} pts</b> de tareas en el Parcial ${R[S.parcial-1]}: ${cur.filter(x=>x.falta).map(x=>`${fmt(x.falta)} en ${x.cat==="Tarea en clase"?"clase":"extra clase"}`).join(" y ")}.`
+               : `Las tareas del Parcial ${R[S.parcial-1]} ya tienen todos sus puntos asignados.`;
+  const secs = secList().filter(s=>nivelDe(s.id));
+  const cell = x => x.exceso ? `<span class="c-bad">+${fmt(x.exceso)} de más</span>` : x.falta ? `<span class="num">${fmt(x.falta)}</span><span class="of">de ${x.peso}</span>` : `<span class="c-ok">Completo</span>`;
+  const totAll = secs.reduce((s,sec)=>s+PARCIALES.reduce((a,p)=>a+sumF(faltan(sec.id,p)),0),0);
+  return `<details class="aviso ${f||exc.length?"pend":"done"}" id="aviso">
+    <summary>${BELL}<span>${msg}${exc.length?` <span class="c-bad">${exc.map(x=>x.cat).join(" y ")} se pasa del porcentaje.</span>`:""}</span><span class="more">Todos los parciales</span></summary>
+    <div class="aviso-body">
+      <p class="sub">Puntos de tareas por asignar en cada parcial (valor de la categoría menos lo que suman sus tareas). En total faltan <b class="num">${fmt(totAll)} pts</b> en todas tus secciones.</p>
+      ${secs.map(s=>`<h3 style="font-size:15px;margin-top:14px">${esc(s.nombre)}${s.materia?` <span class="c-muted" style="font-weight:400">· ${esc(s.materia)}</span>`:""}</h3>
+      <div class="scroll"><table><thead><tr><th>Parcial</th><th class="r">En clase</th><th class="r">Extra clase</th><th class="r">Faltan</th></tr></thead>
+      <tbody>${PARCIALES.map(p=>{const fl=faltan(s.id,p); const t=sumF(fl); return `<tr${s.id===S.sec&&p===S.parcial?' style="font-weight:700"':""}><td>Parcial ${R[p-1]}</td>${fl.map(x=>`<td class="r">${cell(x)}</td>`).join("")}<td class="r num ${t?"c-warn":"c-ok"}">${fmt(t)}</td></tr>`;}).join("")}</tbody></table></div>`).join("")}
+    </div>
+  </details>`;
+}
+function editForm(t, c, cats){
+  return `<form class="f edit item" data-edit="${esc(t.id)}" style="border:1px solid var(--accent);border-radius:10px;padding:12px;margin:6px 0">
+    <label class="wide"><span class="lbl">Título</span><input type="text" id="eTitulo" required maxlength="80" value="${esc(t.titulo)}"></label>
+    <label><span class="lbl">Tipo de tarea</span><select id="eTipo">${c?"":`<option value="" selected>Elige la categoría…</option>`}${cats.map(([n,w])=>`<option value="${esc(n)}"${n===c?" selected":""}>${esc(n)} · ${w}%</option>`).join("")}</select></label>
+    <label><span class="lbl">Valor (pts)</span><input type="number" id="eValor" required min="0.5" max="1000" step="0.5" value="${esc(t.valor)}"></label>
+    <label><span class="lbl">Fecha</span><input type="date" id="eFecha" value="${esc(t.fecha||"")}"></label>
+    <label><span class="lbl">Parcial</span><select id="eParcial">${PARCIALES.map(p=>`<option value="${p}"${p===+t.parcial?" selected":""}>Parcial ${["I","II","III","IV"][p-1]}</option>`).join("")}</select></label>
+    <div style="display:flex;gap:8px"><button class="btn" type="submit">Guardar</button><button class="btn ghost" type="button" data-cancel-edit>Cancelar</button></div>
+  </form>`;
+}
+function gradoSelect(sec){
+  const g = gradoDe(sec);
+  return `<select data-grado="${esc(sec)}" aria-label="Grado de la sección"${S.canWrite?"":" disabled"}>${g?"":`<option value="" selected>Elige el grado…</option>`}${GRADOS.map((l,i)=>`<option value="${i+1}"${i+1===g?" selected":""}>${l} grado</option>`).join("")}</select>`;
+}
+function nivelNote(){
+  return `<div class="card"><h2>¿De qué grado es “${esc(S.secciones[S.sec]?.nombre)}”?</h2><p class="sub">No encontré el grado en el nombre. Elígelo una vez y la distribución de notas se aplica sola.</p><div style="margin-top:12px">${gradoSelect(S.sec)}</div></div>`;
+}
+function noSec(){ return `<div class="card empty"><h3>Crea tu primera sección</h3><p>Empieza con el grupo que impartes, por ejemplo “9no A · Matemáticas”. Luego agregas alumnos y tareas.</p><button class="btn" data-go="alumnos">Crear sección</button></div>`; }
+
+function render(){
+  if(S.noDb) return;
+  if(!["secciones","alumnos","tareas","notas"].every(k=>S.loaded[k])) return;
+  if(!S.sec || !S.secciones[S.sec]){ const f = secList()[0]; S.sec = f ? f.id : null; }
+  if(S.parcial==null){
+    const saved = +store.get("cn_par_"+S.sec);
+    S.parcial = PARCIALES.includes(saved) ? saved : (Math.max(0,...tareasDe(S.sec).map(t=>+t.parcial)) || 1);
+  }
+  renderControls();
+  const active = document.activeElement; const aid = active && active.id; let sel=null;
+  try{ if(active && active.selectionStart!=null) sel=[active.selectionStart,active.selectionEnd]; }catch(e){}
+  const keep = {}; view.querySelectorAll("form.edit input, form.edit select").forEach(el=>{ if(el.id) keep[el.id]=el.value; });
+  view.innerHTML = (S.view!=="alumnos" ? avisoTareas() : "") + ({resumen:vResumen,notas:vNotas,tareas:vTareas,alumnos:vAlumnos})[S.view]();
+  const av = $("#aviso"); if(av){ av.open = !!S.avisoOpen; av.addEventListener("toggle", ()=>{ S.avisoOpen = av.open; }); }
+  for(const [k,v] of Object.entries(keep)){ const el=document.getElementById(k); if(el) el.value=v; }
+  if(S.view==="notas") refreshTotals();
+  if(aid){ const el=document.getElementById(aid); if(el && el!==active){ el.focus({preventScroll:true}); try{ if(sel) el.setSelectionRange(sel[0],sel[1]); }catch(e){} } }
+}
+
+/* ---------- interacción ---------- */
+$("#secTiles").addEventListener("click", e=>{
+  const ad = e.target.closest("[data-go]"); if(ad){ go(ad.dataset.go); return; }
+  const b = e.target.closest("[data-sec]"); if(!b) return;
+  S.sec=b.dataset.sec; store.set("cn_sec",S.sec); const p=+store.get("cn_par_"+S.sec); S.parcial = PARCIALES.includes(p)?p:(Math.max(0,...tareasDe(S.sec).map(t=>+t.parcial))||1); render();
+});
+$("#parSeg").addEventListener("click", e=>{ const b=e.target.closest("button[data-p]"); if(!b) return; S.parcial=+b.dataset.p; store.set("cn_par_"+S.sec,S.parcial); render(); });
+function go(v){ if(!VIEWS.includes(v)) return; S.view=v; try{ history.replaceState(null,"","#"+v); }catch(e){} render(); window.scrollTo({top:0}); }
+document.querySelector("nav.tabs").addEventListener("click", e=>{ const a=e.target.closest("a[data-view]"); if(!a) return; e.preventDefault(); go(a.dataset.view); });
+
+view.addEventListener("click", e=>{
+  const g = e.target.closest("[data-go]"); if(g){ e.preventDefault(); go(g.dataset.go); return; }
+  const ab = e.target.closest("[data-all]"); if(ab){
+    const tid = ab.dataset.all; const box = document.createElement("span"); box.className="allf"; box.dataset.tid=tid;
+    box.innerHTML = `<input class="allv" inputmode="decimal" autocomplete="off" aria-label="Nota para todos" value="${fmt(+S.tareas[tid]?.valor||10)}"><button class="btn mini" type="button" data-allok>OK</button><button class="btn mini ghost" type="button" data-allx aria-label="Cancelar">✕</button>`;
+    ab.replaceWith(box); const inp = box.querySelector(".allv"); inp.focus(); inp.select(); return;
+  }
+  const ok = e.target.closest("[data-allok]"); if(ok){ applyAll(ok.closest(".allf")); return; }
+  const ax = e.target.closest("[data-allx]"); if(ax){ const b=ax.closest(".allf"); b.outerHTML = allBtn(b.dataset.tid); return; }
+  const p = e.target.closest("[data-pick]"); if(p){ S.sec=p.dataset.pick; store.set("cn_sec",S.sec); S.parcial=null; render(); return; }
+  const mv = e.target.closest("[data-mv]"); if(mv && S.canWrite){
+    const al = alumnosDe(S.sec); const i = al.findIndex(a=>a.id===mv.dataset.id); const j = i + +mv.dataset.mv;
+    if(i<0 || j<0 || j>=al.length) return; const A=al[i], B=al[j]; let oa=ordenAl(A), ob=ordenAl(B); if(oa===ob) ob = oa + (j>i?1:-1);
+    mv.disabled = true;
+    write(async()=>{ await S.db.doc("alumnos/"+A.id).update({orden:ob}); await S.db.doc("alumnos/"+B.id).update({orden:oa}); });
+    return;
+  }
+  const et = e.target.closest("[data-edit-t]"); if(et){ S.editTarea = et.dataset.editT; render(); const f=document.getElementById("eTitulo"); if(f) f.focus(); return; }
+  if(e.target.closest("[data-cancel-edit]")){ S.editTarea = null; render(); return; }
+  const d = e.target.closest("[data-del]"); if(d){
+    if(!d.classList.contains("armed")){ d.classList.add("armed"); d.textContent="¿Seguro? Toca otra vez"; setTimeout(()=>{ if(d.isConnected){ d.classList.remove("armed"); d.textContent="Eliminar"; } },3500); return; }
+    d.disabled = true; remove(d.dataset.del, d.dataset.id);
+  }
+});
+async function remove(kind,id){
+  const db = S.db;
+  if(kind==="tarea") await write(async()=>{ await db.doc("tareas/"+id).delete(); await db.doc("notas/"+id).delete(); });
+  if(kind==="alumno") await write(()=>db.doc("alumnos/"+id).delete());
+  if(kind==="seccion") await write(async()=>{
+    for(const a of alumnosDe(id)) await db.doc("alumnos/"+a.id).delete();
+    for(const t of tareasDe(id)){ await db.doc("tareas/"+t.id).delete(); await db.doc("notas/"+t.id).delete(); }
+    await db.doc("secciones/"+id).delete();
+  });
+}
+
+view.addEventListener("submit", async e=>{
+  e.preventDefault(); const f=e.target; if(!S.db) return;
+  if(f.id==="fSec"){
+    const nombre=$("#sNombre").value.trim(); if(!nombre) return;
+    const ref = S.db.collection("secciones").doc();
+    const g = parseGrado(nombre); const doc = {nombre, materia:$("#sMateria").value.trim(), creado:Date.now()}; if(g) doc.grado = g;
+    await write(()=>ref.set(doc));
+    S.sec = ref.id; store.set("cn_sec",S.sec); S.parcial=1; f.reset(); render();
+  }
+  if(f.id==="fAl"){
+    const names = $("#aNombres").value.split(/\r?\n/).map(s=>s.trim()).filter(Boolean).slice(0,80);
+    if(!names.length) return; const btn=f.querySelector("button"); btn.disabled=true;
+    const base = Math.max(Date.now(), ...alumnosDe(S.sec).map(a=>ordenAl(a)+1));
+    await write(async()=>{ for(let i=0;i<names.length;i++) await S.db.collection("alumnos").add({nombre:names[i], seccionId:S.sec, orden:base+i, creado:Date.now()}); });
+    $("#aNombres").value=""; btn.disabled=false;
+  }
+  if(f.classList.contains("edit")){
+    const id=f.dataset.edit; const titulo=$("#eTitulo").value.trim(); const valor=+$("#eValor").value; const tipo=$("#eTipo").value;
+    if(!titulo || !(valor>0) || !tipo) return;
+    await write(()=>S.db.doc("tareas/"+id).update({titulo, tipo, valor, fecha:$("#eFecha").value||"", parcial:+$("#eParcial").value}));
+    S.editTarea=null; render(); return;
+  }
+  if(f.id==="fTarea"){
+    const titulo=$("#tTitulo").value.trim(); const valor=+$("#tValor").value; if(!titulo||!(valor>0)) return;
+    const parcial=+$("#tParcial").value;
+    await write(()=>S.db.collection("tareas").add({titulo, tipo:$("#tTipo").value, valor, fecha:$("#tFecha").value||"", parcial, seccionId:S.sec, creado:Date.now()}));
+    $("#tTitulo").value=""; $("#tTitulo").focus();
+    if(parcial!==S.parcial){ S.parcial=parcial; store.set("cn_par_"+S.sec,parcial); render(); }
+  }
+});
+
+view.addEventListener("input", e=>{
+  const t=e.target;
+  if(t.id==="sNombre"){ const g=parseGrado(t.value), h=$("#sHint"); if(h) h.innerHTML = g ? `Grado detectado: <b>${GRADOS[g-1]}</b> · se usará la distribución de ${NIVELES[nivelDeGrado(g)].label} (${NIVELES[nivelDeGrado(g)].cats.map(c=>`${esc(c[0])} ${c[1]}%`).join(", ")}).` : (t.value.trim() ? `No veo el grado en el nombre. Puedes crearla igual y elegir el grado después.` : `Incluye el grado en el nombre (ej. “8vo A”) y la distribución de notas se aplica sola.`); return; }
+  if(!t.classList.contains("g") || !S.canWrite) return;
+  const tid=t.dataset.t, aid=t.dataset.a; const raw=t.value.trim().replace(",",".");
+  const max=+S.tareas[tid]?.valor||100; const num = raw===""?null:Number(raw);
+  if(raw!=="" && (isNaN(num)||num<0||num>max)){ t.classList.add("bad"); t.title=`Debe estar entre 0 y ${fmt(max)}`; return; }
+  t.classList.remove("bad"); t.title="";
+  (local[tid] || (local[tid]={}))[aid]=num; queueNota(tid,aid,num); refreshTotals();
+});
+view.addEventListener("change", e=>{
+  const t=e.target; if(!S.db) return;
+  if(t.matches("select[data-grado]") && +t.value>=1 && +t.value<=9) write(()=>S.db.doc("secciones/"+t.dataset.grado).update({grado:+t.value}));
+  if(t.matches("select.catsel") && catOf(t.value,S.sec)) write(()=>S.db.doc("tareas/"+t.dataset.cat).update({tipo:t.value}));
+});
+view.addEventListener("keydown", e=>{
+  if(e.target.classList.contains("allv")){ if(e.key==="Enter"){ e.preventDefault(); applyAll(e.target.closest(".allf")); } else if(e.key==="Escape"){ const b=e.target.closest(".allf"); b.outerHTML=allBtn(b.dataset.tid); } return; }
+  const t=e.target; if(!t.classList.contains("g") || (e.key!=="Enter" && e.key!=="ArrowDown" && e.key!=="ArrowUp")) return;
+  e.preventDefault(); const col=[...document.querySelectorAll(`input.g[data-t="${CSS.escape(t.dataset.t)}"]`)];
+  const i=col.indexOf(t); const n=col[i+(e.key==="ArrowUp"?-1:1)]; if(n){ n.focus(); n.select(); }
+});
+view.addEventListener("focusin", e=>{ if(e.target.classList.contains("g")) e.target.select(); });
+
+/* ---------- arranque ---------- */
+const h = (location.hash||"").slice(1); if(VIEWS.includes(h)) S.view=h;
+S.sec = store.get("cn_sec");
+renderControls();
+
+/* ---------- Firebase: inicio de sesión y datos ---------- */
+const acct = $("#acct");
+function chrome(on){ ["#gradosLbl","#secTiles","#controls","nav.tabs"].forEach(q=>{ const el=$(q); if(el) el.hidden=!on; }); }
+function pantalla(html){ S.noDb=true; view.innerHTML=html; $("#secTiles").innerHTML=""; chrome(false); }
+function scoped(fs, raiz){ const base="users/"+raiz+"/"; return { collection:p=>fs.collection(base+p), doc:p=>fs.doc(base+p) }; }
+let unsubs = [];
+
+if(!FIREBASE_CONFIG.apiKey || typeof firebase==="undefined"){
+  setSave("err","Falta configurar");
+  pantalla(`<div class="card setup"><h2>Falta conectar Firebase</h2><p class="sub">Este cuaderno guarda las notas en tu propio proyecto de Firebase.</p>
+  <ol><li>Crea un proyecto en <a href="https://console.firebase.google.com" target="_blank" rel="noopener">console.firebase.google.com</a>.</li>
+  <li>Activa <b>Authentication → Google</b> y <b>Firestore Database</b>.</li>
+  <li>Copia la configuración web y pégala en <code>FIREBASE_CONFIG</code> dentro de <code>index.html</code>.</li>
+  <li>Pega las reglas de <code>firestore.rules</code> en Firestore → Reglas.</li></ol>
+  <p class="sub">Los pasos completos están en el README del repositorio.</p></div>`);
+} else {
+  firebase.initializeApp(FIREBASE_CONFIG);
+  const fs = firebase.firestore();
+  fs.enablePersistence({synchronizeTabs:true}).catch(()=>{});   // funciona sin señal y sincroniza después
+  const auth = firebase.auth();
+
+  /* Cada período escolar (ej. 2026-2027) es un cuaderno aparte:
+     users/<cuenta>/periodos/<período>/{secciones, alumnos, tareas, notas} */
+  let uid=null, perUnsub=null;
+  S.periodos = {};
+  const listaPer = () => Object.entries(S.periodos).map(([id,p])=>({id,...p})).sort((x,y)=>String(y.nombre).localeCompare(String(x.nombre),"es",{numeric:true}));
+  const sugerido = () => { const y=new Date().getFullYear(); return `${y}-${y+1}`; };
+  const perKey = () => "cn_periodo_"+uid;
+
+  function renderPerSel(){
+    const list = listaPer(); $("#perBox").hidden = !list.length;
+    $("#perSel").innerHTML = list.map(p=>`<option value="${esc(p.id)}"${p.id===S.periodo?" selected":""}>${esc(p.nombre)}</option>`).join("") + `<option value="__nuevo">+ Nuevo período…</option>`;
+  }
+
+  function abrirPeriodo(pid){
+    unsubs.forEach(u=>u()); unsubs=[];
+    S.periodo = pid; S.periodoNombre = S.periodos[pid]?.nombre || ""; store.set(perKey(), pid);
+    S.db = scoped(fs, uid+"/periodos/"+pid);
+    ["secciones","alumnos","tareas","notas"].forEach(k=>{ S[k]={}; S.loaded[k]=false; });
+    S.sec = store.get("cn_sec"); S.parcial = null; S.noDb=false; chrome(true);
+    renderPerSel();
+    view.innerHTML = `<div class="card empty"><h3>Abriendo ${esc(S.periodoNombre)}</h3><p>Cargando grados, tareas y notas…</p></div>`;
+    const sub = key=>S.db.collection(key).onSnapshot(snap=>{
+      const o={}; snap.docs.forEach(d=>{ o[d.id]=d.data(); }); S[key]=o; S.loaded[key]=true;
+      const off = snap.metadata.fromCache && !navigator.onLine;
+      if(!inflight) setSave(off?"saving":"", off ? "Sin internet: se guarda al volver la señal" : "Guardado");
+      const a=document.activeElement;
+      if(key==="notas" && a && a.classList && a.classList.contains("g")) refreshGrades(); else render();
+    }, err=>{ setSave("err", err.code==="permission-denied" ? "Sin permiso: revisa las reglas de Firebase" : "Se perdió la conexión. Recarga la página."); });
+    unsubs = ["secciones","alumnos","tareas","notas"].map(sub);
+  }
+
+  function pantallaNuevoPeriodo(){
+    const hay = !!S.periodo && Object.keys(S.secciones).length>0;
+    const primero = !listaPer().length;
+    pantalla(`<div class="card periodo"><h2>${primero?"¿Qué período vas a evaluar?":"Nuevo período escolar"}</h2>
+      <p class="sub">Cada período es un cuaderno aparte, con sus propios alumnos, tareas y notas. Los períodos anteriores quedan guardados y puedes volver a ellos cuando quieras.</p>
+      <form id="fPer">
+        <label class="field-inline"><span class="lbl">Nombre del período</span><input type="text" id="pNombre" required maxlength="20" value="${esc(sugerido())}"></label>
+        ${hay?`<label class="chk"><input type="checkbox" id="pCopiar" checked><span>Copiar los grados y materias de <b>${esc(S.periodoNombre)}</b>. No se copian alumnos, tareas ni notas.</span></label>`:""}
+        <div class="row"><button class="btn" type="submit">Crear período</button>${primero?"":`<button class="btn ghost" type="button" id="pCancel">Cancelar</button>`}</div>
+        <p class="sub" id="pErr" style="color:var(--bad)"></p>
+      </form></div>`);
+    $("#perBox").hidden = true; setSave("", primero ? "Elige el período" : "Nuevo período");
+    const c = $("#pCancel"); if(c) c.onclick = ()=>abrirPeriodo(S.periodo);
+    $("#fPer").onsubmit = async e=>{
+      e.preventDefault();
+      const nombre = $("#pNombre").value.trim(); if(!nombre) return;
+      if(listaPer().some(p=>p.nombre.toLowerCase()===nombre.toLowerCase())){ $("#pErr").textContent = `Ya existe el período ${nombre}.`; return; }
+      const copiar = $("#pCopiar")?.checked ? Object.entries(S.secciones) : [];
+      try{
+        const ref = fs.collection("users/"+uid+"/periodos").doc();
+        const b = fs.batch();
+        b.set(ref, {nombre, creado:Date.now()});
+        copiar.forEach(([id,sec])=>{ const d={nombre:sec.nombre, materia:sec.materia||"", creado:Date.now()}; if(sec.grado) d.grado=sec.grado; if(sec.nivel) d.nivel=sec.nivel; b.set(fs.doc(`users/${uid}/periodos/${ref.id}/secciones/${id}`), d); });
+        await b.commit();
+        S.periodos[ref.id] = {nombre, creado:Date.now()};
+        abrirPeriodo(ref.id);
+      }catch(err){ $("#pErr").textContent = "No se pudo crear el período. Revisa tu conexión."; }
+    };
+  }
+
+  $("#perSel").onchange = e=>{ if(e.target.value==="__nuevo"){ pantallaNuevoPeriodo(); } else abrirPeriodo(e.target.value); };
+
+  auth.onAuthStateChanged(user=>{
+    unsubs.forEach(u=>u()); unsubs=[]; if(perUnsub){ perUnsub(); perUnsub=null; }
+    if(!user){
+      acct.hidden = true; S.db=null; uid=null; $("#perBox").hidden=true; setSave("","Sin sesión");
+      pantalla(`<div class="card login"><h2>Entra para ver tus notas</h2><p class="sub">Tus notas solo se pueden abrir con tu cuenta de Google. Nadie más puede verlas.</p><button class="btn" type="button" id="btnLogin">Entrar con Google</button><p class="sub" id="loginErr" style="color:var(--bad)"></p></div>`);
+      $("#btnLogin").onclick = async()=>{
+        const p = new firebase.auth.GoogleAuthProvider();
+        try{ await auth.signInWithPopup(p); }
+        catch(e){ if(e.code==="auth/popup-blocked"||e.code==="auth/operation-not-supported-in-this-environment") auth.signInWithRedirect(p); else $("#loginErr").textContent = e.code==="auth/unauthorized-domain" ? "Este dominio no está autorizado en Firebase (Authentication → Configuración → Dominios autorizados)." : "No se pudo entrar. Intenta de nuevo."; }
+      };
+      return;
+    }
+    uid = user.uid; acct.hidden=false; $("#who").textContent = user.email || user.displayName || "";
+    S.periodo = null;
+    view.innerHTML = `<div class="card empty"><h3>Abriendo tu cuaderno</h3><p>Buscando tus períodos…</p></div>`;
+    let primeraVez = true;
+    perUnsub = fs.collection("users/"+uid+"/periodos").onSnapshot(snap=>{
+      S.periodos = {}; snap.docs.forEach(d=>{ S.periodos[d.id]=d.data(); });
+      if(primeraVez){
+        primeraVez = false;
+        const guardado = store.get(perKey());
+        const pid = S.periodos[guardado] ? guardado : listaPer()[0]?.id;
+        if(pid) abrirPeriodo(pid); else pantallaNuevoPeriodo();
+      } else if(S.periodo){ S.periodoNombre = S.periodos[S.periodo]?.nombre || S.periodoNombre; renderPerSel(); }
+    }, err=>{ setSave("err", err.code==="permission-denied" ? "Sin permiso: revisa las reglas de Firebase" : "Se perdió la conexión. Recarga la página."); });
+  });
+
+  $("#btnSalir").onclick = ()=>auth.signOut();
+
+  // Respaldo: descarga todo en un archivo JSON (guárdalo en tu compu, NO lo subas a GitHub)
+  $("#btnExport").onclick = ()=>{
+    const data = {app:"cuaderno-de-notas", version:2, periodo:S.periodoNombre||"", exportado:today(), secciones:S.secciones, alumnos:S.alumnos, tareas:S.tareas, notas:S.notas};
+    const url = URL.createObjectURL(new Blob([JSON.stringify(data,null,1)],{type:"application/json"}));
+    const a = document.createElement("a"); a.href=url; a.download=`respaldo-cuaderno-notas-${(S.periodoNombre||"").replace(/[^\w-]+/g,"_")}-${today()}.json`; document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(()=>URL.revokeObjectURL(url), 2000);
+  };
+  $("#btnImport").onclick = ()=>$("#fileImport").click();
+  $("#fileImport").onchange = async e=>{
+    const f = e.target.files[0]; e.target.value=""; if(!f || !S.db) return;
+    let data; try{ data = JSON.parse(await f.text()); }catch(_){ setSave("err","Ese archivo no es un respaldo válido"); return; }
+    const cols = ["secciones","alumnos","tareas","notas"];
+    if(data.app!=="cuaderno-de-notas" || !cols.every(c=>data[c] && typeof data[c]==="object")){ setSave("err","Ese archivo no es un respaldo del cuaderno"); return; }
+    const n = cols.reduce((s,c)=>s+Object.keys(data[c]).length,0);
+    if(!S.periodo) return;
+    if(!window.confirm(`¿Importar ${n} registros${data.periodo?` del período ${data.periodo}`:""} al período ${S.periodoNombre}? Se agregan y reemplazan los que tengan el mismo identificador.`)) return;
+    const ops = []; cols.forEach(c=>Object.entries(data[c]).forEach(([id,doc])=>ops.push([c,id,doc])));
+    await write(async()=>{
+      for(let i=0;i<ops.length;i+=400){
+        const b = fs.batch();
+        ops.slice(i,i+400).forEach(([c,id,doc])=>b.set(S.db.doc(c+"/"+id), doc));
+        await b.commit();
+      }
+    });
+    setSave("","Respaldo importado");
+  };
+}
+})();
+</script>
+</body>
+</html>

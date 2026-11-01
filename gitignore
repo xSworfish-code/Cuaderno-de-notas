@@ -1,0 +1,3 @@
+# Los respaldos tienen nombres de alumnos y notas: NUNCA los subas a GitHub
+respaldo*.json
+*.backup.json
